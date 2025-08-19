@@ -30,9 +30,7 @@ app.use(
     tempFileDir: "/tmp/",
   })
 );
-app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
-});
+
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/job", jobRouter);
