@@ -20,7 +20,8 @@ const JobDetails = () => {
   // Fetch job details
   useEffect(() => {
     axios
-      .get(`http://localhost:4000/api/v1/job/${id}`, {
+      .get(`https://jobhunt-backend.onrender.com/api/v1/job/${id}`
+, {
         withCredentials: true,
       })
       .then((res) => {
