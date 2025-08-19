@@ -31,7 +31,7 @@ const PostJob = () => {
     }
     await axios
       .post(
-        "https://job-portal-backend.onrender.com/api/v1/job/getall",
+        "https://job-hunts-1.onrender.com/api/v1/job/getall",
         fixedSalary.length >= 4
           ? {
               title,
