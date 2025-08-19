@@ -18,11 +18,12 @@ const Register = () => {
 
   const { isAuthorized, setIsAuthorized, user, setUser } = useContext(Context);
 
+  
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:4000/api/v1/user/register",
+        "https://job-hunts-1.onrender.com/api/v1/user/register",
         { name, phone, email, role, password },
         {
           headers: {
@@ -39,9 +40,10 @@ const Register = () => {
       setRole("");
       setIsAuthorized(true);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
+  
 
   if(isAuthorized){
     return <Navigate to={'/'}/>

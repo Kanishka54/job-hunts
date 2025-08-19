@@ -1,15 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { Context } from "../../main";
+
 const JobDetails = () => {
   const { id } = useParams();
-  const [job, setJob] = useState({});
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigateTo = useNavigate();
-
   const { isAuthorized, user } = useContext(Context);
 
+  // Redirect if not authorized
+  useEffect(() => {
+    if (!isAuthorized) {
+      navigateTo("/login");
+    }
+  }, [isAuthorized, navigateTo]);
+
+  // Fetch job details
   useEffect(() => {
     axios
       .get(`http://localhost:4000/api/v1/job/${id}`, {
@@ -17,15 +25,14 @@ const JobDetails = () => {
       })
       .then((res) => {
         setJob(res.data.job);
+        setLoading(false);
       })
-      .catch((error) => {
+      .catch(() => {
         navigateTo("/notfound");
       });
-  }, []);
+  }, [id, navigateTo]);
 
-  if (!isAuthorized) {
-    navigateTo("/login");
-  }
+  if (loading) return <h2>Loading job details...</h2>;
 
   return (
     <section className="jobDetail page">
@@ -33,40 +40,38 @@ const JobDetails = () => {
         <h3>Job Details</h3>
         <div className="banner">
           <p>
-            Title: <span> {job.title}</span>
+            Title: <span>{job?.title}</span>
           </p>
           <p>
-            Category: <span>{job.category}</span>
+            Category: <span>{job?.category}</span>
           </p>
           <p>
-            Country: <span>{job.country}</span>
+            Country: <span>{job?.country}</span>
           </p>
           <p>
-            City: <span>{job.city}</span>
+            City: <span>{job?.city}</span>
           </p>
           <p>
-            Location: <span>{job.location}</span>
+            Location: <span>{job?.location}</span>
           </p>
           <p>
-            Description: <span>{job.description}</span>
+            Description: <span>{job?.description}</span>
           </p>
           <p>
-            Job Posted On: <span>{job.jobPostedOn}</span>
+            Job Posted On: <span>{job?.jobPostedOn}</span>
           </p>
           <p>
             Salary:{" "}
-            {job.fixedSalary ? (
+            {job?.fixedSalary ? (
               <span>{job.fixedSalary}</span>
             ) : (
               <span>
-                {job.salaryFrom} - {job.salaryTo}
+                {job?.salaryFrom} - {job?.salaryTo}
               </span>
             )}
           </p>
-          {user && user.role === "Employer" ? (
-            <></>
-          ) : (
-            <Link to={`/application/${job._id}`}>Apply Now</Link>
+          {user?.role !== "Employer" && (
+            <Link to={`/application/${job?._id}`}>Apply Now</Link>
           )}
         </div>
       </div>

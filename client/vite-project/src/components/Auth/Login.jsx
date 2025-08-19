@@ -18,7 +18,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:4000/api/v1/user/login",
+        "https://job-hunts-1.onrender.com/api/v1/user/login",
         { email, password, role },
         {
           headers: {
@@ -27,6 +27,7 @@ const Login = () => {
           withCredentials: true,
         }
       );
+      
       toast.success(data.message);
       setEmail("");
       setPassword("");
