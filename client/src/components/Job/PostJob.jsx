@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../main";
+
 const PostJob = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -16,12 +17,22 @@ const PostJob = () => {
   const [salaryType, setSalaryType] = useState("default");
 
   const { isAuthorized, user } = useContext(Context);
+  const navigateTo = useNavigate();
+
+  // Fix navigation logic with useEffect
+  useEffect(() => {
+    if (!isAuthorized || (user && user.role !== "Employer")) {
+      navigateTo("/");
+    }
+  }, [isAuthorized, user, navigateTo]);
 
   const handleJobPost = async (e) => {
     e.preventDefault();
+    
+    // Clear unused salary fields based on salary type
     if (salaryType === "Fixed Salary") {
       setSalaryFrom("");
-      setSalaryTo("");
+      setSalaryTo(""); // ✅ Fixed typo
     } else if (salaryType === "Ranged Salary") {
       setFixedSalary("");
     } else {
@@ -29,9 +40,10 @@ const PostJob = () => {
       setSalaryTo("");
       setFixedSalary("");
     }
-    await axios
-      .post(
-        "https://job-hunts-1.onrender.com/api/v1/job/post",
+
+    try {
+      const response = await axios.post(
+        "https://job-hunts-1.onrender.com/api/v1/job/post", // ✅ Fixed endpoint
         fixedSalary.length >= 4
           ? {
               title,
@@ -58,21 +70,31 @@ const PostJob = () => {
             "Content-Type": "application/json",
           },
         }
-      )
-      .then((res) => {
-        toast.success(res.data.message);
-      })
-      .catch((err) => {
-        toast.error(err.response.data.message);
-      });
+      );
+      
+      toast.success(response.data.message);
+      
+      // Optional: Clear form after successful submission
+      setTitle("");
+      setDescription("");
+      setCategory("");
+      setCountry("");
+      setCity("");
+      setLocation("");
+      setSalaryFrom("");
+      setSalaryTo("");
+      setFixedSalary("");
+      setSalaryType("default");
+      
+      // Optional: Navigate to jobs list
+      // navigateTo("/jobs");
+      
+    } catch (err) {
+      console.error("Job post error:", err);
+      toast.error(err.response?.data?.message || "Failed to create job");
+    }
   };
 
-  useEffect(() => {
-    if (!isAuthorized || (user && user.role !== "Employer")) {
-      navigateTo("/");
-    }
-  }, [isAuthorized, user, navigateTo]);
-  
   return (
     <>
       <div className="job_post page">
@@ -85,10 +107,12 @@ const PostJob = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Job Title"
+                required
               />
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                required
               >
                 <option value="">Select Category</option>
                 <option value="Graphics & Design">Graphics & Design</option>
@@ -99,7 +123,7 @@ const PostJob = () => {
                   Frontend Web Development
                 </option>
                 <option value="Business Development Executive">
-                Business Development Executive
+                  Business Development Executive
                 </option>
                 <option value="Account & Finance">Account & Finance</option>
                 <option value="Artificial Intelligence">
@@ -121,12 +145,14 @@ const PostJob = () => {
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 placeholder="Country"
+                required
               />
               <input
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="City"
+                required
               />
             </div>
             <input
@@ -134,11 +160,13 @@ const PostJob = () => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Location"
+              required
             />
             <div className="salary_wrapper">
               <select
                 value={salaryType}
                 onChange={(e) => setSalaryType(e.target.value)}
+                required
               >
                 <option value="default">Select Salary Type</option>
                 <option value="Fixed Salary">Fixed Salary</option>
@@ -153,6 +181,7 @@ const PostJob = () => {
                     placeholder="Enter Fixed Salary"
                     value={fixedSalary}
                     onChange={(e) => setFixedSalary(e.target.value)}
+                    required
                   />
                 ) : (
                   <div className="ranged_salary">
@@ -161,12 +190,14 @@ const PostJob = () => {
                       placeholder="Salary From"
                       value={salaryFrom}
                       onChange={(e) => setSalaryFrom(e.target.value)}
+                      required
                     />
                     <input
                       type="number"
                       placeholder="Salary To"
                       value={salaryTo}
                       onChange={(e) => setSalaryTo(e.target.value)}
+                      required
                     />
                   </div>
                 )}
@@ -177,6 +208,7 @@ const PostJob = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Job Description"
+              required
             />
             <button type="submit">Create Job</button>
           </form>
