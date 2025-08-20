@@ -19,7 +19,6 @@ const PostJob = () => {
   const { isAuthorized, user } = useContext(Context);
   const navigateTo = useNavigate();
 
-  // Fix navigation logic with useEffect
   useEffect(() => {
     if (!isAuthorized || (user && user.role !== "Employer")) {
       navigateTo("/");
@@ -29,41 +28,28 @@ const PostJob = () => {
   const handleJobPost = async (e) => {
     e.preventDefault();
     
-    // Clear unused salary fields based on salary type
+    // Build payload based on salaryType BEFORE clearing fields
+    let jobData = {
+      title,
+      description,
+      category,
+      country,
+      city,
+      location,
+    };
+
+    // Add salary data based on current salaryType
     if (salaryType === "Fixed Salary") {
-      setSalaryFrom("");
-      setSalaryTo(""); // ✅ Fixed typo
+      jobData.fixedSalary = fixedSalary;
     } else if (salaryType === "Ranged Salary") {
-      setFixedSalary("");
-    } else {
-      setSalaryFrom("");
-      setSalaryTo("");
-      setFixedSalary("");
+      jobData.salaryFrom = salaryFrom;
+      jobData.salaryTo = salaryTo;
     }
 
     try {
       const response = await axios.post(
-        "https://job-hunts-1.onrender.com/api/v1/job/post", // ✅ Fixed endpoint
-        fixedSalary.length >= 4
-          ? {
-              title,
-              description,
-              category,
-              country,
-              city,
-              location,
-              fixedSalary,
-            }
-          : {
-              title,
-              description,
-              category,
-              country,
-              city,
-              location,
-              salaryFrom,
-              salaryTo,
-            },
+        "https://job-hunts-1.onrender.com/api/v1/job/post", 
+        jobData,
         {
           withCredentials: true,
           headers: {
@@ -74,7 +60,7 @@ const PostJob = () => {
       
       toast.success(response.data.message);
       
-      // Optional: Clear form after successful submission
+      // Clear form after successful submission
       setTitle("");
       setDescription("");
       setCategory("");
@@ -86,14 +72,25 @@ const PostJob = () => {
       setFixedSalary("");
       setSalaryType("default");
       
-      // Optional: Navigate to jobs list
-      // navigateTo("/jobs");
-      
     } catch (err) {
       console.error("Job post error:", err);
-      toast.error(err.response?.data?.message || "Failed to create job");
+      
+      // Better error handling
+      if (err.response?.status === 401) {
+        toast.error("You are not authorized. Please login again.");
+        navigateTo("/login");
+      } else if (err.response?.status === 403) {
+        toast.error("Access denied. Only employers can post jobs.");
+      } else {
+        toast.error(err.response?.data?.message || "Failed to create job");
+      }
     }
   };
+
+  // Don't render the form if user is not authorized
+  if (!isAuthorized || (user && user.role !== "Employer")) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <>
