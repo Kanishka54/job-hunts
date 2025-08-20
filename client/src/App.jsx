@@ -19,6 +19,7 @@ import MyJobs from "./components/Job/MyJobs.jsx";
 
 const App = () => {
   const { isAuthorized, setIsAuthorized, setUser } = useContext(Context);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -35,7 +36,7 @@ const App = () => {
       }
     };
     fetchUser();
-  }, [isAuthorized]);
+  }, []);
 
   return (
     <>
