@@ -21,7 +21,7 @@ const PostJob = () => {
     e.preventDefault();
     if (salaryType === "Fixed Salary") {
       setSalaryFrom("");
-      setSalaryFrom("");
+      setSalaryTo("");
     } else if (salaryType === "Ranged Salary") {
       setFixedSalary("");
     } else {
@@ -31,7 +31,7 @@ const PostJob = () => {
     }
     await axios
       .post(
-        "https://job-hunts-1.onrender.com/api/v1/job/getall",
+        "https://job-hunts-1.onrender.com/api/v1/job/post",
         fixedSalary.length >= 4
           ? {
               title,
