@@ -21,7 +21,6 @@ app.use(
       process.env.FRONTEND_URL,
       "http://localhost:3000", // for local development
       "http://localhost:5173", // for Vite
-      // Add your deployed frontend URL here if different
     ],
     methods: ["GET", "POST", "DELETE", "PUT"],
     credentials: true,
@@ -41,9 +40,9 @@ app.use(
 
 // Test route to check if server is working
 app.get("/", (req, res) => {
-  res.json({ 
-    message: "Job Portal API is running successfully!", 
-    status: "success" 
+  res.json({
+    message: "Job Portal API is running successfully!",
+    status: "success"
   });
 });
 
@@ -58,12 +57,5 @@ dbConnection();
 // Error handling middleware (should be last)
 app.use(errorMiddleware);
 
-// Start server
-const PORT = process.env.PORT || 10000; // Render uses port 10000 by default
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-});
-
+// NO app.listen() here - server.js handles it
 export default app;
