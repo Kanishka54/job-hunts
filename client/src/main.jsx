@@ -7,6 +7,8 @@ export const Context = createContext({
   isAuthorized: false,
 });
 
+axios.defaults.withCredentials = true;
+
 const AppWrapper = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [user, setUser] = useState({});

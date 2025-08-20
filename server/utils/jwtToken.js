@@ -6,12 +6,11 @@ export const sendToken = (user, statusCode, res, message) => {
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // ✅ true only in prod
-    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // ✅ works locally + prod
+    sameSite: "None",   // ✅ allow cross-site cookies
+    secure: true,       
   };
 
-  res
-    .status(statusCode)
+  res.status(statusCode)
     .cookie("token", token, options)
     .json({
       success: true,
