@@ -4,27 +4,31 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { AiOutlineClose } from "react-icons/ai"; // Import the close icon
+import { AiOutlineClose } from "react-icons/ai";
 
 const Navbar = () => {
   const [show, setShow] = useState(false);
-  const { isAuthorized, setIsAuthorized, user } = useContext(Context);
+  const { isAuthorized, setIsAuthorized, user, setUser } = useContext(Context);
   const navigateTo = useNavigate();
 
   const handleLogout = async () => {
     try {
       const response = await axios.get(
-        "https://job-hunts-1.onrender.com/api/v1/user/logout" ,
-
+        "https://job-hunts-1.onrender.com/api/v1/user/logout",
         {
           withCredentials: true,
         }
       );
       toast.success(response.data.message);
       setIsAuthorized(false);
+      setUser({}); // Clear user data
       navigateTo("/login");
     } catch (error) {
-      toast.error(error.response.data.message), setIsAuthorized(true);
+      // Even if logout API fails, still log out locally
+      toast.error(error.response?.data?.message || "Logout failed");
+      setIsAuthorized(false); // Changed from true to false
+      setUser({}); // Clear user data
+      navigateTo("/login");
     }
   };
 
@@ -66,7 +70,6 @@ const Navbar = () => {
               </li>
             </>
           ) : null}
-
           <button onClick={handleLogout}>LOGOUT</button>
         </ul>
         <div className="hamburger" onClick={() => setShow(!show)}>
